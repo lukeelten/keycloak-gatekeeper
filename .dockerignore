@@ -1,0 +1,7 @@
+.idea
+docs
+tests
+.golangci.yml
+*.md
+*_test.go
+*.sh
