@@ -2,6 +2,12 @@
 docs
 tests
 .golangci.yml
+.travis.yml
 *.md
 *_test.go
 *.sh
+release
+bin
+cover.html
+cover.out
+LICENSE
