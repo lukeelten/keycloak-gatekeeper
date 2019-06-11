@@ -389,9 +389,9 @@ func TestOauthRequestsWithBaseURI(t *testing.T) {
 			ExpectedCode:  http.StatusOK,
 		},
 		{
-			URI:           "/auth_api/test",
-			Redirects:     false,
-			ExpectedCode:  http.StatusUnauthorized,
+			URI:          "/auth_api/test",
+			Redirects:    false,
+			ExpectedCode: http.StatusUnauthorized,
 		},
 	}
 	newFakeProxy(cfg).RunTests(t, requests)

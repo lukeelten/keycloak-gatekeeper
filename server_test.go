@@ -486,10 +486,10 @@ func newFakeKeycloakConfig() *Config {
 				Roles:       []string{},
 			},
 			{
-				URL: fakeTestBearerOnly,
-				BearerOnly: true,
+				URL:         fakeTestBearerOnly,
+				BearerOnly:  true,
 				WhiteListed: false,
-				Methods: allHTTPMethods,
+				Methods:     allHTTPMethods,
 			},
 		},
 	}
