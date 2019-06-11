@@ -6,7 +6,7 @@ require (
 	github.com/armon/go-proxyproto v0.0.0-20190211145416-68259f75880e
 	github.com/boltdb/bolt v1.3.1
 	github.com/codegangsta/negroni v1.0.0 // indirect
-	github.com/coreos/go-oidc v2.0.0+incompatible
+	github.com/coreos/go-oidc v0.0.0-20171002155002-a93f71fdfe73
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f
 	github.com/fsnotify/fsnotify v1.4.7
