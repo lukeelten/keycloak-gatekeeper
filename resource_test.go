@@ -31,6 +31,7 @@ func TestDecodeResourceBad(t *testing.T) {
 		{Option: "uri=hello"},
 		{Option: "uri=/|white-listed=ERROR"},
 		{Option: "uri=/|require-any-role=BAD"},
+		{Option: "uri=/|bearer-only=BAD"},
 	}
 	for i, c := range cs {
 		if _, err := newResource().parse(c.Option); err == nil {
@@ -46,11 +47,11 @@ func TestResourceParseOk(t *testing.T) {
 	}{
 		{
 			Option:   "uri=/admin",
-			Resource: &Resource{URL: "/admin", Methods: allHTTPMethods},
+			Resource: &Resource{URL: "/admin", Methods: allHTTPMethods, BearerOnly: false},
 		},
 		{
 			Option:   "uri=/",
-			Resource: &Resource{URL: "/", Methods: allHTTPMethods},
+			Resource: &Resource{URL: "/", Methods: allHTTPMethods, BearerOnly: false},
 		},
 		{
 			Option:   "uri=/admin/sso|roles=test,test1",
@@ -84,6 +85,14 @@ func TestResourceParseOk(t *testing.T) {
 			Option:   "uri=/*|require-any-role=true",
 			Resource: &Resource{URL: "/*", Methods: allHTTPMethods, RequireAnyRole: true},
 		},
+		{
+			Option:   "uri=/*|bearer-only=true",
+			Resource: &Resource{URL: "/*", Methods: allHTTPMethods, BearerOnly: true},
+		},
+		{
+			Option:   "uri=/*|bearer-only=false",
+			Resource: &Resource{URL: "/*", Methods: allHTTPMethods, BearerOnly: false},
+		},
 	}
 	for i, x := range cs {
 		r, err := newResource().parse(x.Option)
@@ -106,10 +115,17 @@ func TestIsValid(t *testing.T) {
 			Ok:       true,
 		},
 		{
+			Resource: &Resource{URL: "/test", Methods: []string{"GET"}, BearerOnly: true},
+			Ok:       true,
+		},
+		{
 			Resource: &Resource{URL: "/", Methods: allHTTPMethods},
 		},
 		{
 			Resource: &Resource{URL: "/admin/", Methods: allHTTPMethods},
+		},
+		{
+			Resource: &Resource{URL: "/test/*", Methods: allHTTPMethods, WhiteListed: true, BearerOnly: true},
 		},
 		{
 			Resource: &Resource{},
