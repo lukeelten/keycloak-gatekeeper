@@ -82,6 +82,12 @@ func (r *oauthProxy) accessForbidden(w http.ResponseWriter, req *http.Request) c
 	return r.revokeProxy(w, req)
 }
 
+// unauthorized return HTTP 401 to user
+func (r *oauthProxy) unauthorized(w http.ResponseWriter, req *http.Request) context.Context {
+	w.WriteHeader(http.StatusUnauthorized)
+	return r.revokeProxy(w, req)
+}
+
 // redirectToURL redirects the user and aborts the context
 func (r *oauthProxy) redirectToURL(url string, w http.ResponseWriter, req *http.Request, statusCode int) context.Context {
 	http.Redirect(w, req, url, statusCode)

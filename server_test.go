@@ -40,6 +40,7 @@ const (
 	fakeTestRole           = "role:test"
 	fakeTestRoleURL        = "/test_role"
 	fakeTestWhitelistedURL = "/auth_all/white_listed*"
+	fakeTestBearerOnly     = "/auth_api/test"
 	testProxyAccepted      = "Proxy-Accepted"
 	validUsername          = "test"
 	validPassword          = "test"
@@ -483,6 +484,12 @@ func newFakeKeycloakConfig() *Config {
 				WhiteListed: true,
 				Methods:     allHTTPMethods,
 				Roles:       []string{},
+			},
+			{
+				URL: fakeTestBearerOnly,
+				BearerOnly: true,
+				WhiteListed: false,
+				Methods: allHTTPMethods,
 			},
 		},
 	}

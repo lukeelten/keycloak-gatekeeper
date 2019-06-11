@@ -36,7 +36,7 @@ func (r *Resource) parse(resource string) (*Resource, error) {
 	for _, x := range strings.Split(resource, "|") {
 		kp := strings.Split(x, "=")
 		if len(kp) != 2 {
-			return nil, errors.New("invalid resource keypair, should be (uri|roles|methods|white-listed)=comma_values")
+			return nil, errors.New("invalid resource keypair, should be (uri|roles|methods|white-listed|bearer-only)=comma_values")
 		}
 		switch kp[0] {
 		case "uri":
@@ -61,14 +61,20 @@ func (r *Resource) parse(resource string) (*Resource, error) {
 			r.Roles = strings.Split(kp[1], ",")
 		case "groups":
 			r.Groups = strings.Split(kp[1], ",")
+		case "bearer-only":
+			bearerOnly, err := strconv.ParseBool(kp[1])
+			if err != nil {
+				return nil, errors.New("the value of bearer-only must be true|TRUE|T or it's false equivalent")
+			}
+			r.BearerOnly = bearerOnly
 		case "white-listed":
 			value, err := strconv.ParseBool(kp[1])
 			if err != nil {
-				return nil, errors.New("the value of whitelisted must be true|TRUE|T or it's false equivalent")
+				return nil, errors.New("the value of white-listed must be true|TRUE|T or it's false equivalent")
 			}
 			r.WhiteListed = value
 		default:
-			return nil, errors.New("invalid identifier, should be roles, uri or methods")
+			return nil, errors.New("invalid identifier, should be roles, uri, methods, white-listed or bearer-only")
 		}
 	}
 
@@ -101,6 +107,10 @@ func (r *Resource) valid() error {
 		}
 	}
 
+	if r.WhiteListed && r.BearerOnly {
+		return errors.New("resource cannot be white-listed and bearer only at the same time")
+	}
+
 	return nil
 }
 
@@ -124,6 +134,10 @@ func (r Resource) String() string {
 
 	if len(r.Methods) > 0 {
 		methods = strings.Join(r.Methods, ",")
+	}
+
+	if r.BearerOnly {
+		return fmt.Sprintf("uri: %s, methods: %s, required: %s, bearer-only", r.URL, methods, roles)
 	}
 
 	return fmt.Sprintf("uri: %s, methods: %s, required: %s", r.URL, methods, roles)

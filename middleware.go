@@ -101,12 +101,23 @@ func (r *oauthProxy) loggingMiddleware(next http.Handler) http.Handler {
 func (r *oauthProxy) authenticationMiddleware(resource *Resource) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			// Respond Lambda to avoid code duplication
+			sendResponse := func() {
+				if resource.BearerOnly {
+					// If resource is bearer-only respond with HTTP 401
+					next.ServeHTTP(w, req.WithContext(r.unauthorized(w, req)))
+				} else {
+					// Otherwise redirect to authorization page
+					next.ServeHTTP(w, req.WithContext(r.redirectToAuthorization(w, req)))
+				}
+			}
+
 			clientIP := req.RemoteAddr
 			// grab the user identity from the request
 			user, err := r.getIdentity(req)
 			if err != nil {
 				r.log.Error("no session found in request, redirecting for authorization", zap.Error(err))
-				next.ServeHTTP(w, req.WithContext(r.redirectToAuthorization(w, req)))
+				sendResponse()
 				return
 			}
 			// create the request scope
@@ -123,7 +134,7 @@ func (r *oauthProxy) authenticationMiddleware(resource *Resource) func(http.Hand
 						zap.String("username", user.name),
 						zap.String("expired_on", user.expiresAt.String()))
 
-					next.ServeHTTP(w, req.WithContext(r.redirectToAuthorization(w, req)))
+					sendResponse()
 					return
 				}
 			} else {
@@ -147,7 +158,7 @@ func (r *oauthProxy) authenticationMiddleware(resource *Resource) func(http.Hand
 							zap.String("email", user.name),
 							zap.String("expired_on", user.expiresAt.String()))
 
-						next.ServeHTTP(w, req.WithContext(r.redirectToAuthorization(w, req)))
+						sendResponse()
 						return
 					}
 
@@ -163,7 +174,7 @@ func (r *oauthProxy) authenticationMiddleware(resource *Resource) func(http.Hand
 							zap.String("email", user.email),
 							zap.Error(err))
 
-						next.ServeHTTP(w, req.WithContext(r.redirectToAuthorization(w, req)))
+						sendResponse()
 						return
 					}
 
@@ -180,7 +191,7 @@ func (r *oauthProxy) authenticationMiddleware(resource *Resource) func(http.Hand
 						default:
 							r.log.Error("failed to refresh the access token", zap.Error(err))
 						}
-						next.ServeHTTP(w, req.WithContext(r.redirectToAuthorization(w, req)))
+						sendResponse()
 
 						return
 					}

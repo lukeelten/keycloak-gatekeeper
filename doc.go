@@ -149,6 +149,8 @@ type Resource struct {
 	Roles []string `json:"roles" yaml:"roles"`
 	// Groups is a list of groups the user is in
 	Groups []string `json:"groups" yaml:"groups"`
+	// Indicates whether this ressource group should return redirect or unauthentucated directly. Default: false
+	BearerOnly bool `json:"bearer-only" yaml:"bearer-only"`
 }
 
 // Config is the configuration for the proxy
